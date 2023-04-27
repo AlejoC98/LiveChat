@@ -26,24 +26,6 @@ function log(message) {
     logStream.write(`${now}: ${message}`);
 }
 
-
-app.get('/', (req, res) => {
-    res.render('index');
-    user !== undefined ? people_connect.splice(people_connect.indexOf(user), 1) : user;
-});
-
-app.post('/chat', (req, res) => {
-    const { username } = req.body;
-    user = username;
-    const user_color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-    res.render('chat', {user: username, color: user_color});
-});
-
-app.post('/logout', (req, res) => {
-    // people_connect.splice(people_connect.indexOf(user), 1);
-    res.redirect("/");
-});
-
 io.on('connection', (socket) => {
     
     if (!people_connect.includes(user) && user !== undefined) {
@@ -71,14 +53,31 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        people_connect.splice(people_connect.indexOf(user), 1);
-        user = undefined;
+        people_connect.splice(people_connect.indexOf(user), 1)
+        // user = undefined;
         io.emit('update user count', people_connect.length);
         log(`${user} Disconnected`);
-        socket.broadcast.emit('user connected', 'An user has left');
+        socket.broadcast.emit('user connected', 'A user has left');
     });
 });
 
-const PORT = process.env.PORT || 5000;
+
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
+app.post('/chat', (req, res) => {
+    const { username } = req.body;
+    user = username;
+    const user_color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+
+    res.render('chat', {user: username, color: user_color});
+});
+
+app.post('/logout', (req, res) => {
+    res.redirect("/");
+});
+
+const PORT = process.env.PORT || 4000;
 
 server.listen(PORT, console.log(`Server running on port ${PORT}`));
